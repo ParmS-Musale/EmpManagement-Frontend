@@ -1,3 +1,4 @@
+import React from 'react';
 import './App.css';
 import { Home } from './Home';
 import Department from './Department';
@@ -7,31 +8,69 @@ import { BrowserRouter, Route, Routes, NavLink } from 'react-router-dom';
 function App() {
   return (
     <BrowserRouter>
-      <div className="App container">
-        <h3 className="d-flex justify-content-center m-3">
-          React JS Frontend
-        </h3>
+      <div>
+        {/* Bootstrap Navigation Bar */}
+        <nav className="navbar navbar-expand-lg bg-red-600 text-white rounded shadow mb-4">
+        <div className="container-fluid">
+          <img src="/Logo.png" alt="LOGO" className="img-fluid" style={{ width: '60px', height: '60px' }} />
+          <button
+              className="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarToggler"
+              aria-controls="navbarToggler"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
 
-        <nav className="navbar navbar-expand-sm bg-light navbar-dark">
-          <ul className="navbar-nav">
-            <li className="nav-item- m-1">
-              <NavLink className="btn btn-light btn-outline-primary" to="/home">
-                Home
-              </NavLink>
-            </li>
-            <li className="nav-item- m-1">
-              <NavLink className="btn btn-light btn-outline-primary" to="/department">
-                Department
-              </NavLink>
-            </li>
-            <li className="nav-item- m-1">
-              <NavLink className="btn btn-light btn-outline-primary" to="/employee">
-                Employee
-              </NavLink>
-            </li>
-          </ul>
+            <div className="collapse navbar-collapse" id="navbarToggler">
+              <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li className="nav-item mx-2">
+                  <NavLink
+                    className="nav-link"
+                    to="/home"
+                    activeClassName="active"
+                  >
+                    Home
+                  </NavLink>
+                </li>
+                <li className="nav-item mx-2">
+                  <NavLink
+                    className="nav-link"
+                    to="/department"
+                    activeClassName="active"
+                  >
+                    Department
+                  </NavLink>
+                </li>
+                <li className="nav-item mx-2">
+                  <NavLink
+                    className="nav-link"
+                    to="/employee"
+                    activeClassName="active"
+                  >
+                    Employee
+                  </NavLink>
+                </li>
+              </ul>
+              {/* <form className="d-flex">
+                <input
+                  className="form-control me-2"
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search"
+                /> */}
+                <button className="btn btn-outline-success" type="submit">
+                  Login
+                </button>
+              {/* </form> */}
+            </div>
+          </div>
         </nav>
 
+        {/* Routes */}
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/department" element={<Department />} />

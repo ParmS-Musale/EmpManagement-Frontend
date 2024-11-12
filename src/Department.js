@@ -3,82 +3,99 @@ import axios from "axios";
 
 const DepartmentManagement = () => {
   const [departments, setDepartments] = useState([]);
-  const [DepartmentId, setDepartmentId] = useState(0);
-  const [DepartmentName, setDepartmentName] = useState("");
+  const [departmentId, setDepartmentId] = useState(null);
+  const [departmentName, setDepartmentName] = useState("");
   const [modalTitle, setModalTitle] = useState("Add Department");
+  const [isEditing, setIsEditing] = useState(false);
 
+  // Fetch all departments on component mount
   useEffect(() => {
-    getDepartments();
+    fetchDepartments();
   }, []);
 
-  const getDepartments = async () => {
+  const fetchDepartments = async () => {
     try {
       const response = await axios.get("https://localhost:7055/api/Department");
       setDepartments(response.data);
-      console.log(response);
     } catch (error) {
       console.error("Error fetching departments", error);
     }
   };
 
-  const changeDepartmentName = (e) => {
+  // Handle department name input change
+  const handleDepartmentNameChange = (e) => {
     setDepartmentName(e.target.value);
   };
 
-  const sortResult = (column, ascending = true) => {
-    const sortedDepartments = [...departments];
-    sortedDepartments.sort((a, b) => {
-      if (ascending) {
-        return a[column] > b[column] ? 1 : -1;
-      } else {
-        return a[column] < b[column] ? 1 : -1;
-      }
+  // Handle sorting of departments by column
+  const sortDepartments = (column, ascending = true) => {
+    const sortedDepartments = [...departments].sort((a, b) => {
+      const compare = ascending ? a[column] > b[column] : a[column] < b[column];
+      return compare ? 1 : -1;
     });
     setDepartments(sortedDepartments);
   };
 
-  const createClick = async () => {
+  // Handle creating a new department
+  const createDepartment = async () => {
+    if (!departmentName) return;
+
     try {
-      await axios.post("https://localhost:7055/api/Department", { DepartmentName });
-      getDepartments();
+      await axios.post("https://localhost:7055/api/Department", {
+        departmentName,
+      });
+      fetchDepartments(); // Reload departments after creation
+      setDepartmentName(""); // Clear input after creating
     } catch (error) {
       console.error("Error creating department", error);
     }
   };
 
-  const updateClick = async () => {
+  // Handle updating an existing department
+  const updateDepartment = async () => {
+    if (!departmentName || departmentId === null) return;
+
     try {
-      // const response =await axios.put(`https://localhost:7055/api/Department/${DepartmentId}`, { DepartmentName });
-      const response = await axios.put(`https://localhost:7055/api/Department`, {
-        departmentId: DepartmentId,
-        departmentName: DepartmentName
+      await axios.put(`https://localhost:7055/api/Department/${departmentId}`, {
+        departmentName,
       });
-      
-      getDepartments();
-      
-      console.log(response)
+      fetchDepartments(); // Reload departments after update
+      setDepartmentName(""); // Clear input after updating
+      setIsEditing(false); // Reset editing state
     } catch (error) {
       console.error("Error updating department", error);
     }
   };
 
-  const deleteClick = async (id) => {
+  // Handle deleting a department
+  const deleteDepartment = async (id) => {
     try {
       await axios.delete(`https://localhost:7055/api/Department/${id}`);
-      getDepartments();
+      fetchDepartments(); // Reload departments after deletion
     } catch (error) {
       console.error("Error deleting department", error);
     }
   };
 
-  const editClick = (dep) => {
+  // Set modal data for editing a department
+  const handleEditClick = (dep) => {
     setModalTitle("Edit Department");
     setDepartmentId(dep.DepartmentId);
     setDepartmentName(dep.DepartmentName);
+    setIsEditing(true);
+  };
+
+  // Set modal data for adding a new department
+  const handleAddClick = () => {
+    setModalTitle("Add Department");
+    setDepartmentId(null);
+    setDepartmentName("");
+    setIsEditing(false);
   };
 
   return (
     <div>
+      {/* Department Table */}
       <table className="table table-striped">
         <thead>
           <tr>
@@ -87,34 +104,16 @@ const DepartmentManagement = () => {
                 <button
                   type="button"
                   className="btn btn-light"
-                  onClick={() => sortResult("DepartmentId", true)}
+                  onClick={() => sortDepartments("DepartmentId", true)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-arrow-down-square-fill"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z" />
-                  </svg>
+                  ⬆️
                 </button>
                 <button
                   type="button"
                   className="btn btn-light"
-                  onClick={() => sortResult("DepartmentId", false)}
+                  onClick={() => sortDepartments("DepartmentId", false)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-arrow-up-square-fill"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z" />
-                  </svg>
+                  ⬇️
                 </button>
               </div>
               DepartmentId
@@ -124,34 +123,16 @@ const DepartmentManagement = () => {
                 <button
                   type="button"
                   className="btn btn-light"
-                  onClick={() => sortResult("DepartmentName", true)}
+                  onClick={() => sortDepartments("DepartmentName", true)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-arrow-down-square-fill"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z" />
-                  </svg>
+                  ⬆️
                 </button>
                 <button
                   type="button"
                   className="btn btn-light"
-                  onClick={() => sortResult("DepartmentName", false)}
+                  onClick={() => sortDepartments("DepartmentName", false)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-arrow-up-square-fill"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z" />
-                  </svg>
+                  ⬇️
                 </button>
               </div>
               DepartmentName
@@ -164,29 +145,30 @@ const DepartmentManagement = () => {
             <tr key={dep.DepartmentId}>
               <td>{dep.DepartmentId}</td>
               <td>{dep.DepartmentName}</td>
-              <td >
+              <td>
                 <button
                   type="button"
-                  className=" px-2 mr-2 rounded-md py-1 bg-red-500"
+                  className="px-2 mr-2 rounded-md py-1 bg-red-500"
                   data-bs-toggle="modal"
                   data-bs-target="#exampleModal"
-                  onClick={() => editClick(dep)}
+                  onClick={() => handleEditClick(dep)}
                 >
-                 Edit
+                  Edit
                 </button>
                 <button
                   type="button"
-                  className=" px-2 rounded-md py-1 bg-red-500"
-                  onClick={() => deleteClick(dep.DepartmentId)}
+                  className="px-2 rounded-md py-1 bg-red-500"
+                  onClick={() => deleteDepartment(dep.DepartmentId)}
                 >
-                 Delete
+                  Delete
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {/* Modal for adding/editing */}
+
+      {/* Modal for adding/editing department */}
       <div
         className="modal fade"
         id="exampleModal"
@@ -212,8 +194,9 @@ const DepartmentManagement = () => {
                 <input
                   type="text"
                   className="form-control"
-                  value={DepartmentName}
-                  onChange={changeDepartmentName}
+                  value={departmentName}
+                  onChange={handleDepartmentNameChange}
+                  placeholder="Enter department name"
                 />
               </div>
             </div>
@@ -222,15 +205,17 @@ const DepartmentManagement = () => {
                 type="button"
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
+                onClick={handleAddClick} // Reset modal state on close
               >
                 Close
               </button>
-                <button type="button" className="btn btn-primary" onClick={createClick}>
-                  Create Department
-                </button>
-                <button type="button" className="btn btn-primary" onClick={updateClick}>
-                  Update Department
-                </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={isEditing ? updateDepartment : createDepartment}
+              >
+                {isEditing ? "Update Department" : "Create Department"}
+              </button>
             </div>
           </div>
         </div>

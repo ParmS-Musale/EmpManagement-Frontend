@@ -11,6 +11,7 @@ const Employee = () => {
     const [dateOfJoining, setDateOfJoining] = useState("");
     const [photoFileName, setPhotoFileName] = useState("anonymous.png");
     const [photoPath, setPhotoPath] = useState(variables.PHOTO_URL);
+    const [feedbackMessage, setFeedbackMessage] = useState("");
 
     // Fetch data when component mounts
     useEffect(() => {
@@ -72,10 +73,10 @@ const Employee = () => {
                 }),
             });
             const result = await response.json();
-            alert(result);
+            setFeedbackMessage(result);
             refreshList();
         } catch (error) {
-            alert('Failed to create employee');
+            setFeedbackMessage('Failed to create employee');
         }
     };
 
@@ -95,10 +96,10 @@ const Employee = () => {
                 }),
             });
             const result = await response.json();
-            alert(result);
+            setFeedbackMessage(result);
             refreshList();
         } catch (error) {
-            alert('Failed to update employee');
+            setFeedbackMessage('Failed to update employee');
         }
     };
 
@@ -109,10 +110,10 @@ const Employee = () => {
                     method: 'DELETE',
                 });
                 const result = await response.json();
-                alert(result);
+                setFeedbackMessage(result);
                 refreshList();
             } catch (error) {
-                alert('Failed to delete employee');
+                setFeedbackMessage('Failed to delete employee');
             }
         }
     };
@@ -131,15 +132,18 @@ const Employee = () => {
             const data = await response.json();
             setPhotoFileName(data);
         } catch (error) {
-            console.error('Failed to upload image', error);
+            setFeedbackMessage('Failed to upload image');
         }
     };
 
     return (
         <div className="container">
+            {/* Feedback Message */}
+            {feedbackMessage && <div className="alert alert-info">{feedbackMessage}</div>}
+
             <button
                 type="button"
-                className="btn btn-primary m-2 float-end"
+                className="btn btn-primary m-2 float-end transition duration-300 ease-in-out hover:bg-blue-600 hover:scale-105"
                 data-bs-toggle="modal"
                 data-bs-target="#exampleModal"
                 onClick={addClick}>
@@ -158,7 +162,7 @@ const Employee = () => {
                 </thead>
                 <tbody>
                     {employees.map(emp => (
-                        <tr key={emp.EmployeeId}>
+                        <tr key={emp.EmployeeId} className="hover:bg-gray-100">
                             <td>{emp.EmployeeId}</td>
                             <td>{emp.EmployeeName}</td>
                             <td>{emp.Department}</td>
@@ -201,9 +205,11 @@ const Employee = () => {
                             <input type="file" className="form-control" onChange={handleFileUpload} />
                         </div>
                         <div className="modal-footer">
-                            {employeeId === 0 ?
-                                <button className="btn btn-primary" onClick={createEmployee}>Create</button> :
-                                <button className="btn btn-primary" onClick={updateEmployee}>Update</button>}
+                            {employeeId === 0 ? (
+                                <button className="btn btn-primary" onClick={createEmployee}>Create</button>
+                            ) : (
+                                <button className="btn btn-primary" onClick={updateEmployee}>Update</button>
+                            )}
                         </div>
                     </div>
                 </div>
